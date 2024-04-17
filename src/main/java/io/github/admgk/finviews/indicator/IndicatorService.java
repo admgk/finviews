@@ -12,50 +12,54 @@ import java.util.TreeMap;
 
 @Service
 class IndicatorService {
-    private AnnualInflationRepository repository;
+    private AnnualInflationRepository annualInflationRepo;
+    private AverageSalaryRepository averageSalaryRepo;
 
-    IndicatorService(AnnualInflationRepository repository) {
-        this.repository = repository;
+    IndicatorService(AnnualInflationRepository annualInflationRepo, AverageSalaryRepository averageSalaryRepo) {
+        this.annualInflationRepo = annualInflationRepo;
+        this.averageSalaryRepo = averageSalaryRepo;
     }
 
-    IndicatorDTO findAll() {
-        List<? extends Indicator> indList = repository.findAll();
-        return convertToDTO(indList);
-    }
+    // IndicatorDTO findAll() {
+    //     List<? extends Indicator> indList = repository.findAll();
+    //     return convertToDTO(indList);
+    // }
     
-    // private final Logger logger = LoggerFactory.getLogger(IndicatorService.class);
+    private final Logger logger = LoggerFactory.getLogger(IndicatorService.class);
 
-    // IndicatorDTO invokeRepositoryOf(String indicator) {
-    //     var indName = validateIndParameter(indicator);
-    //     List<? extends Indicator> indList;
-    //     switch (indName) {
-    //         case INFLATION:
-    //             indList = new AnnualInflationRepository().findAll();
-    //             return convertToDTO(indList);
-    //         case AVERAGE_SALARY:
-    //             indList = new AverageSalaryRepository().findAll();
-    //             return convertToDTO(indList);
-    //         default:
-    //             indList = new AnnualInflationRepository().findAll();
-    //             return convertToDTO(indList);
-    //     }
-    // }
+    IndicatorDTO invokeRepositoryOf(String indicator) {
+        var indName = validateIndParameter(indicator);
+        List<? extends Indicator> indList;
+        switch (indName) {
+            case INFLATION:
+                indList = annualInflationRepo.findAll();
+                return convertToDTO(indList);
+            case AVERAGE_SALARY:
+                indList = averageSalaryRepo.findAll();
+                return convertToDTO(indList);
+            default:
+                indList = annualInflationRepo.findAll();
+                return convertToDTO(indList);
+        }
+    }
 
-    // IndName validateIndParameter(String indicator) {
-    //     Integer indOrdinal = null;
-    //     try {
-    //         indOrdinal = Integer.valueOf(indicator);
-    //     } catch (NumberFormatException e) {
-    //         logger.warn("Non numeric indicator ID used " + indicator);
-    //     }
+    IndName validateIndParameter(String indicator) {
+        Integer indOrdinal = null;
+        try {
+            indOrdinal = Integer.valueOf(indicator);
+        } catch (NumberFormatException e) {
+            logger.warn("Non numeric indicator ID used " + indicator);
+        }
 
-    //     for (IndName ind : IndName.values()) {
-    //         if (ind.ordinal() == indOrdinal) {
-    //             return ind;
-    //         }
-    //     }
-    //     return IndName.INFLATION;
-    // }
+        if (indOrdinal != null) {
+            for (IndName ind : IndName.values()) {
+                    if (ind.ordinal() == indOrdinal) {
+                        return ind;
+                    }
+            }
+        }        
+        return IndName.INFLATION;
+    }
 
     IndicatorDTO convertToDTO(List<? extends Indicator> indList) {
         var name = indList.get(0).getNAME();
